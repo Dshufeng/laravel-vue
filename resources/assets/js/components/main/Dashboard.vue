@@ -2,8 +2,7 @@
     <el-container style="height: 960px; border: 1px solid #eee">
         <el-aside  style="background-color: #545c64">
             <div class="logo">
-                <img src="https://secure.gravatar.com/avatar/aa9bef27d4edb438c7d6dea0c252dd17.jpg?s=80&r=g&d=mm" alt="" width="50px">
-                <span>LOGO</span>
+                <h2>LOGO</h2>
             </div>
             <el-menu :default-openeds="['1']"
                      background-color="#545c64"
@@ -16,7 +15,7 @@
                     <template slot="title"><i class="el-icon-message"></i>仪表盘</template>
                     <el-menu-item index="example">选项1</el-menu-item>
                     <el-menu-item index="profile">选项2</el-menu-item>
-                    <el-menu-item index="message">选项3</el-menu-item>
+                    <el-menu-item index="dashboard">选项3</el-menu-item>
                 </el-submenu>
                 <el-submenu index="2">
                     <template slot="title"><i class="el-icon-menu"></i>文章</template>
@@ -66,18 +65,18 @@
             </el-menu>
         </el-aside>
         <el-container>
-            <el-header style="text-align: right; font-size: 12px;color: #fff">
+            <el-header style="">
                 <el-dropdown>
-                    <i class="el-icon-setting" style="margin-right: 15px"></i>
+                    <i class="el-icon-setting" style="margin-right: 20px"></i>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>查看</el-dropdown-item>
-                        <el-dropdown-item>新增</el-dropdown-item>
-                        <el-dropdown-item>删除</el-dropdown-item>
+                        <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
-                <span>陌上</span>
+                <span class="avatar">
+                    <img src="https://secure.gravatar.com/avatar/aa9bef27d4edb438c7d6dea0c252dd17.jpg?s=80&r=g&d=mm" alt="" width="50px">
+                </span>
+                <span>{{userName}}</span>
             </el-header>
-
             <el-main>
              <router-view></router-view>
             </el-main>
@@ -87,27 +86,55 @@
 
 <script type="text/ecmascript-6">
     export default {
-        name: "layout",
-        methods: {},
-        data() {
-            const item = {
-                date: '2016-05-02',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1518 弄'
-            };
-            return {
-                tableData: Array(20).fill(item)
+        name: "dashboard",
+        methods: {
+            logout:function () {
+                let _this = this;
+                this.$confirm('确认退出?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    _this.axios.get('/login/logout').then(function (res) {
+                        if(res.data.status){
+                            sessionStorage.removeItem('mySession');
+                            setTimeout(function () {
+                                _this.$router.push('/login');
+                            },1000);
+                        }
+                    });
+                }).catch(() => {
+
+                });
             }
+        },
+        data() {
+            return {
+                userName:''
+            }
+        },
+        mounted(){
+            var user = sessionStorage.getItem('mySession');
+            if(user){
+                user = JSON.parse(user);
+                this.userName = user.name;
+            }
+
         }
     }
 </script>
 
-<style scoped>
+<style type="text/css">
+    body {
+        background: #f1f2f7;
+        color: #FFF;
+    }
     .el-header {
         background-color: #B3C0D1;
         color: #333;
         line-height: 60px;
         background: #545c64;
+
     }
     .el-aside {
         color: #333;
@@ -118,10 +145,7 @@
         line-height: 60px;
         padding-left: 30px;
     }
-    .logo img{
+    .avatar img{
         border-radius: 50px;
-    }
-    .log span{
-        color: #fff;
     }
 </style>

@@ -8,6 +8,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+import App from './App.vue';
 import VueRouter from 'vue-router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -16,30 +17,47 @@ import VueAxios from 'vue-axios'
 
 Vue.use(VueRouter);
 Vue.use(ElementUI);
-Vue.use(VueAxios, axios)
+Vue.use(VueAxios, axios);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example', require('./components/ExampleComponent.vue'));
-Vue.component('profile', require('./components/Profile.vue'));
-Vue.component('message', require('./components/Message.vue'));
-Vue.component('layout', require('./components/main/Layout.vue'));
-Vue.component('login', require('./components/main/Login.vue'));
+import Login from './components/main/Login.vue';
+import Dashboard from './components/main/Dashboard.vue';
+import Message from './components/Message.vue';
+import Example from './components/ExampleComponent.vue';
+import Profile from './components/Profile.vue';
+
 const routes = [
-    { path: '/example', component: {template :"<example></example>"  } },
-    { path: "/profile", component: { template: "<profile></profile>" } },
-    { path: "/message", component: { template: "<message></message>" } }
+    {
+        path: "/login",
+        component:Login
+    },
+    {
+        path: '/',
+        component: Dashboard,
+        children: [
+            { path: 'dashboard', component: Message, name: '仪表盘' },
+            { path: 'example', component: Example, name: '仪表盘' },
+            { path: 'profile', component: Profile, name: '仪表盘' }
+        ]
+    }
 ];
+
 const router = new VueRouter({
-    routes: routes // （缩写）相当于 routes: routes
+    history: true,
+    root: 'dashboard', // 默认路由首页
+    routes
 });
 
 // const app = new Vue({
 //     el: '#app'
 // });
 const app = new Vue({
-    router
+    el: '#app',
+    router,
+    template: '<App/>',
+    components: { App }
 }).$mount('#app');

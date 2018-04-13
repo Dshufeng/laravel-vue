@@ -1,5 +1,5 @@
 <template>
-    <div class="login-form">
+    <div class="login-form" v-loading="loading">
         <el-row>
             <el-col :span="24">
                 <el-form ref="loginForm" :model="loginForm" label-width="100px">
@@ -24,6 +24,7 @@
         name: "login",
         data() {
             return {
+                loading:false,
                 loginForm: {
                     name: '',
                     password: ''
@@ -32,8 +33,27 @@
         },
         methods: {
             loginSubmit:function (loginForm) {
+
+                var _this = this;
+                var _duration = 1000*2;
+                _this.loading = true;
                 this.axios.post('/login/index',this.loginForm).then(function (response) {
-                    console.log(response);
+                    let data = response.data;
+                    if(data.status){
+                        sessionStorage.setItem('mySession',JSON.stringify(data.user));
+                        setTimeout(function () {
+                            _this.$message({
+                                message: data.msg,
+                                type:'success',
+                                duration: _duration
+                            });
+                            _this.$router.push({path: '/dashboard'})
+                        }, _duration);
+                    }else{
+                        _this.$message.error(data.msg);
+                        _this.loading = false;
+                    }
+
                 });
 
             }
@@ -41,14 +61,14 @@
     }
 </script>
 
-<style >
+<style type="text/css">
     body {
-        background: #324057;
-        color: #FFF;
-    }
+          background: rgb(84, 92, 100);
+          color: #FFF;
+      }
     .login-form {
         width: 400px;
-        margin: 10% auto 0 auto;
+        margin: 15% auto 0 auto;
         padding: 50px 50px 50px 30px;
         background: #FFF;
         border-radius: 2px;

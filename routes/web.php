@@ -20,7 +20,8 @@ Route::group(['middleware' => 'my'], function () {
 
 Route::get('/login/index', 'LoginController@index');
 Route::post('/login/index', 'LoginController@login');
-Route::get('/login/logout', 'IndexController@logout');
+Route::post('/login/check', 'LoginController@check');
+Route::get('/login/logout', 'LoginController@logout');
 Route::get('/',function(){
     return view('index');
 });

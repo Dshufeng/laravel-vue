@@ -13,8 +13,4 @@ class IndexController extends Controller
         User::create($data);
     }
 
-    public function logout(){
-        Auth::guard('my')->logout();
-        return redirect('/login/index');
-    }
 }
