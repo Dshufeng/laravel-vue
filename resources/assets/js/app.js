@@ -18,6 +18,9 @@ import VueAxios from 'vue-axios'
 Vue.use(VueRouter);
 Vue.use(ElementUI);
 Vue.use(VueAxios, axios);
+
+import util from './lib/util';
+Vue.prototype.util = util;
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -28,7 +31,7 @@ import Login from './components/main/Login.vue';
 import Dashboard from './components/main/Dashboard.vue';
 import Message from './components/Message.vue';
 import Example from './components/ExampleComponent.vue';
-import Profile from './components/Profile.vue';
+import Post from './components/Post.vue';
 
 const routes = [
     {
@@ -41,7 +44,7 @@ const routes = [
         children: [
             { path: 'dashboard', component: Message, name: '仪表盘' },
             { path: 'example', component: Example, name: '仪表盘' },
-            { path: 'profile', component: Profile, name: '仪表盘' }
+            { path: 'post', component: Post, name: '仪表盘' }
         ]
     }
 ];

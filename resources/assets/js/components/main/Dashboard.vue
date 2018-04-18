@@ -1,6 +1,6 @@
 <template>
     <el-container style="height: 960px; border: 1px solid #eee">
-        <el-aside  style="background-color: #545c64">
+        <el-aside style="background-color: #545c64">
             <div class="logo">
                 <h2>LOGO</h2>
             </div>
@@ -14,8 +14,8 @@
                 <el-submenu index="1">
                     <template slot="title"><i class="el-icon-message"></i>仪表盘</template>
                     <el-menu-item index="example">选项1</el-menu-item>
-                    <el-menu-item index="profile">选项2</el-menu-item>
-                    <el-menu-item index="dashboard">选项3</el-menu-item>
+                    <el-menu-item index="post">添加</el-menu-item>
+                    <el-menu-item index="dashboard">列表</el-menu-item>
                 </el-submenu>
                 <el-submenu index="2">
                     <template slot="title"><i class="el-icon-menu"></i>文章</template>
@@ -65,20 +65,23 @@
             </el-menu>
         </el-aside>
         <el-container>
-            <el-header style="">
+            <el-header style="text-align: right; font-size: 12px;color: #fff">
                 <el-dropdown>
-                    <i class="el-icon-setting" style="margin-right: 20px"></i>
+                    <i class="el-icon-setting" style="margin-right: 15px">  {{userName}}</i>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
                 <span class="avatar">
-                    <img src="https://secure.gravatar.com/avatar/aa9bef27d4edb438c7d6dea0c252dd17.jpg?s=80&r=g&d=mm" alt="" width="50px">
+                    <img src="https://secure.gravatar.com/avatar/aa9bef27d4edb438c7d6dea0c252dd17.jpg?s=80&r=g&d=mm"
+                         alt="" width="50px">
                 </span>
-                <span>{{userName}}</span>
             </el-header>
-            <el-main>
-             <router-view></router-view>
+            <el-main class="">
+                <el-col :span="24" style="margin-bottom:15px;font-size: 18px;padding: 5px">
+                    <span class="pit-current-route">{{currentPathName}}</span>
+                </el-col>
+                <router-view></router-view>
             </el-main>
         </el-container>
     </el-container>
@@ -88,7 +91,7 @@
     export default {
         name: "dashboard",
         methods: {
-            logout:function () {
+            logout: function () {
                 let _this = this;
                 this.$confirm('确认退出?', '提示', {
                     confirmButtonText: '确定',
@@ -96,11 +99,11 @@
                     type: 'warning'
                 }).then(() => {
                     _this.axios.get('/login/logout').then(function (res) {
-                        if(res.data.status){
+                        if (res.data.status) {
                             sessionStorage.removeItem('mySession');
                             setTimeout(function () {
                                 _this.$router.push('/login');
-                            },1000);
+                            }, 1000);
                         }
                     });
                 }).catch(() => {
@@ -110,12 +113,14 @@
         },
         data() {
             return {
-                userName:''
+                userName: '',
+                currentPathName:'首页',
+
             }
         },
-        mounted(){
+        mounted() {
             var user = sessionStorage.getItem('mySession');
-            if(user){
+            if (user) {
                 user = JSON.parse(user);
                 this.userName = user.name;
             }
@@ -124,28 +129,40 @@
     }
 </script>
 
-<style type="text/css">
-    body {
-        background: #f1f2f7;
-        color: #FFF;
-    }
+<style type="text/css" scoped>
     .el-header {
         background-color: #B3C0D1;
         color: #333;
         line-height: 60px;
         background: #545c64;
-
+    }
+    .el-main{
+        background: #ffffff;
     }
     .el-aside {
         color: #333;
     }
-    .logo{
+    .el-menu{
+        border-right:solid 1px #545c64;
+    }
+    .el-dropdown{
+        color:#fff;
+    }
+    .logo {
         widows: 100%;
         height: 60px;
         line-height: 60px;
         padding-left: 30px;
     }
-    .avatar img{
+
+    .avatar img {
         border-radius: 50px;
     }
+    .pit-current-route {
+        width: 200px;
+        float: left;
+        color: #475669;
+        font-weight: bold;
+    }
+
 </style>
