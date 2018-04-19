@@ -23,11 +23,6 @@
     export default {
         name: "login",
         data() {
-            var checkUsername = (rule, value, callback)=>{
-                if (!value) {
-                    return callback(new Error('用户名不能为空'));
-                }
-            };
             return {
                 loading:false,
                 loginForm: {

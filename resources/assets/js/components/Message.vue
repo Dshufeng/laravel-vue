@@ -15,6 +15,8 @@
                     type="selection"
                     width="55">
             </el-table-column>
+            <el-table-column prop="id" label="编号" width="140">
+            </el-table-column>
             <el-table-column prop="date" label="日期" width="140">
             </el-table-column>
             <el-table-column prop="name" label="姓名" width="120">
@@ -31,56 +33,75 @@
         data() {
             return {
                 tableData: [{
+                    id: 1,
                     date: '2016-05-03',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 2,
                     date: '2016-05-02',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 3,
                     date: '2016-05-04',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 4,
                     date: '2016-05-01',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 5,
                     date: '2016-05-08',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 6,
                     date: '2016-05-06',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }, {
+                    id: 7,
                     date: '2016-05-07',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1518 弄'
                 }],
-                multipleSelection: []
+                checkedAll: []
             }
         },
         methods:{
             handleSelectionChange(val) {
-                this.multipleSelection = val;
+                this.checkedAll = val;
             },
             deleteSelected () {
-                var _this = this;
-                if(this.multipleSelection.length > 0){
+                let _this = this,idsParam = {};
+                if(this.checkedAll.length > 0){
                     _this.$confirm('此操作将永久删除, 是否继续?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
                         // _this.util.removeByValue(_this.tableData,);
-                        console.log(_this.tableData);
-                        console.log(_this.multipleSelection);
-                        this.$message({
-                            type: 'success',
-                            message: '删除成功!'
+                        idsParam = _this.util.getIdByArr(_this.checkedAll);
+                        _this.axios.post('admin/delete/article',idsParam).then(function (res) {
+                            var ids = res.data;
+                            _this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                            if(ids.length > 1){
+                                for (var index in ids){
+                                    _this.util.removeByValue(_this.tableData, ids[index]);
+                                }
+                            }else{
+                                _this.util.removeByValue(_this.tableData, ids);
+                            }
+
                         });
+                    }).catch(() => {
+
                     });
                 }else{
                     this.$message({

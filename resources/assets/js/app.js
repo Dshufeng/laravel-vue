@@ -32,19 +32,34 @@ import Dashboard from './components/main/Dashboard.vue';
 import Message from './components/Message.vue';
 import Example from './components/ExampleComponent.vue';
 import Post from './components/Post.vue';
+import Options from './components/Options.vue';
+import Category from './components/Category.vue';
 
 const routes = [
     {
         path: "/login",
-        component:Login
+        component:Login,
+        hidden: true
     },
     {
         path: '/',
+        name:'仪表盘',
+        iconCls: 'el-icon-message',
         component: Dashboard,
         children: [
-            { path: 'dashboard', component: Message, name: '仪表盘' },
-            { path: 'example', component: Example, name: '仪表盘' },
-            { path: 'post', component: Post, name: '仪表盘' }
+            { path: '/dashboard', component: Message, name: '列表' },
+            { path: '/example', component: Example, name: '首页' },
+            { path: '/post', component: Post, name: '添加' },
+            { path: '/category', component: Category, name: '分类' },
+        ]
+    },
+    {
+        path: '/',
+        name: '设置',
+        iconCls: 'el-icon-setting',
+        component: Dashboard,
+        children: [
+            { path: '/options', component: Options, name: '配置' }
         ]
     }
 ];

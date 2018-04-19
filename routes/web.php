@@ -16,6 +16,12 @@ Route::group(['middleware' => 'my'], function () {
     Route::get('/admin/index', function () {
         return view('welcome');
     });
+    Route::post('/admin/post/article','Admin\ArticleController@postArticle');
+    Route::post('/admin/delete/article','Admin\ArticleController@deleteArticle');
+
+    // category
+    Route::post('admin/category/post','Admin\CategoryController@store');
+    Route::get('admin/category/get','Admin\CategoryController@index');
 });
 
 Route::get('/login/index', 'LoginController@index');
