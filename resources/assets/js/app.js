@@ -19,6 +19,19 @@ Vue.use(VueRouter);
 Vue.use(ElementUI);
 Vue.use(VueAxios, axios);
 
+/**
+ * axios config
+ * We'll register a HTTP interceptor to attach the "CSRF" header to each of
+ * the outgoing requests issued by this application. The CSRF middleware
+ * included with Laravel will automatically verify the header's value.
+ * @type {string}
+ */
+Vue.axios.defaults.headers.common = {
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+    'X-Requested-With': 'XMLHttpRequest'
+};
+
+
 import util from './lib/util';
 Vue.prototype.util = util;
 /**

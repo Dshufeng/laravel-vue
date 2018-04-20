@@ -18,36 +18,49 @@
             </el-table-column>
             <el-table-column prop="id" label="编号" width="140">
             </el-table-column>
-            <el-table-column prop="name" label="名称" width="140">
+            <el-table-column prop="category_name" label="名称" width="140">
             </el-table-column>
-            <el-table-column prop="alias" label="别名" width="120">
+            <el-table-column prop="category_alias" label="别名" width="120">
             </el-table-column>
-            <el-table-column prop="desc" label="描述">
+            <el-table-column prop="category_description" label="描述">
             </el-table-column>
-            <el-table-column prop="parent_cate" label="父级">
+            <el-table-column prop="category_parent" label="父级">
+            </el-table-column>
+            <el-table-column prop="created_at" label="创建时间">
+            </el-table-column>
+            <el-table-column prop="updated_at" label="修改时间">
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="handleEdit(row)" type="text" size="small">删除</el-button>
+                    <el-button @click="handleDestory('one',row)" type="text" size="small">编辑</el-button>
+                </template>
             </el-table-column>
         </el-table>
 
         <el-dialog title="添加分类" :visible.sync="categoryFormVisible" width="30%">
             <el-form :model="categoryForm" :rules="rules" ref="categoryForm">
-                <el-form-item label="分类名称" label-width="120px" prop="name">
-                    <el-input v-model="categoryForm.name" auto-complete="off"></el-input>
+                <el-form-item label="分类名称" label-width="120px" prop="category_name">
+                    <el-input v-model="categoryForm.category_name" auto-complete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="分类别名" label-width="120px" prop="alias">
-                    <el-input v-model="categoryForm.alias" auto-complete="off"></el-input>
+                <el-form-item label="分类别名" label-width="120px" prop="category_alias">
+                    <el-input v-model="categoryForm.category_alias" auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="分类描述" label-width="120px">
-                    <el-input type="textarea" v-model="categoryForm.desc" :rows="4"></el-input>
+                    <el-input type="textarea" v-model="categoryForm.category_description" :rows="4"></el-input>
                 </el-form-item>
                 <el-form-item label="父级分类" label-width="120px">
-                    <el-select v-model="categoryForm.parent_cate" placeholder="请选择父级分类">
-                        <el-option :label="item.name" :value="item.id" v-for="(item,index) in categoryData"></el-option>
+                    <el-select v-model="categoryForm.category_parent" placeholder="请选择父级分类">
+                        <el-option :label="item.category_name" :value="item.id" v-for="(item,index) in categorys" :key="index"></el-option>
                     </el-select>
+                </el-form-item>
+                <el-form-item v-if="categoryForm.id">
+                    <el-input v-model="categoryForm.id" style="display: none;"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="categoryFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="categoryFormCreate(categoryForm)">提 交</el-button>
+                <el-button @click="closeForm('categoryForm')">取 消</el-button>
+                <el-button type="primary" @click="categoryFormCreate('categoryForm')">提 交</el-button>
             </div>
         </el-dialog>
     </div>
@@ -59,17 +72,19 @@
         data() {
             return {
                 categoryData: [],
+                categorys: [],
                 categoryForm: {
-                    name: '',
-                    alias: '',
-                    desc: '',
-                    parent_cate: ''
+                    id: 0,
+                    category_name: '',
+                    category_alias: '',
+                    category_description: '',
+                    category_parent: 0
                 },
                 rules: {
-                    name: [
+                    category_name: [
                         {required: true, message: '请输入分类名称', trigger: 'blur'}
                     ],
-                    alias: [
+                    category_alias: [
                         {required: true, message: '请选择分类别名', trigger: 'blur'}
                     ]
                 },
@@ -82,12 +97,28 @@
             },
             showCreate: function () {
                 this.categoryFormVisible = true;
+                this.setTopCategorys();
+            },
+            handleEdit:function () {
+                alert();
+            },
+            handleDestory:function () {
+                alert();
             },
             categoryFormCreate: function (categoryForm) {
+                let _this = this;
+
                 this.$refs.categoryForm.validate((valid) => {
                     if(valid){
                         this.axios.post('admin/category/post', this.categoryForm).then(function (res) {
-
+                           if(res.data.status == 'success'){
+                               _this.closeForm('categoryForm');
+                               _this.getCategoryData();
+                           }
+                            _this.$message({
+                                message: res.data.status == 'success' ? '新增成功' : '新增失败',
+                                type: res.data.status
+                            });
                         });
                     }else{
                         return false;
@@ -100,11 +131,26 @@
                 this.axios.get('/admin/category/get').then(function (res) {
                     _this.categoryData = res.data;
                 })
+            },
+            closeForm: function (categoryForm) {
+                this.categoryFormVisible = false;
+                this.$refs[categoryForm].resetFields();
+                this.categoryForm = {
+                    id: 0,
+                    category_name: '',
+                    category_alias: '',
+                    category_description: '',
+                    category_parent: 0,
+                };
+                console.log('closeForm');
+            },
+            setTopCategorys: function () {
+                var categorys = this.categoryData.concat();
+                categorys.splice(0, 0, {id: 0, category_name: '顶级分类', hidden: true, category_parent: 0});
+                this.categorys = categorys;
             }
         },
         mounted(){
-            var cateFrom = this.categoryForml;
-            console.log(this.$refs.cateFrom);
             this.getCategoryData();
         }
     }

@@ -23,9 +23,9 @@ $factory->define(App\User::class, function (Faker $faker) {
 
 $factory->define(App\Common\Category::class, function (Faker $faker) {
     return [
-        'name' => $faker->name,
-        'alias' => $faker->city,
-        'desc' => $faker->text,
-        'parent_cate' => 0
+        'category_name' => $faker->name,
+        'category_alias' => $faker->city,
+        'category_description' => $faker->text,
+        'category_parent' => 0
     ];
 });
