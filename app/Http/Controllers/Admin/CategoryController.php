@@ -28,7 +28,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json();
     }
 
     /**
@@ -63,6 +63,8 @@ class CategoryController extends Controller
     public function show($id)
     {
         //
+        $data = Category::find($id);
+        return response()->json($data);
     }
 
     /**
@@ -74,6 +76,7 @@ class CategoryController extends Controller
     public function edit($id)
     {
         //
+        return response()->json();
     }
 
     /**
@@ -86,6 +89,16 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $input = $request->except('id');
+        $category = Category::find($id);
+        if($category->update($input)){
+            return response()->json([
+                'status'=>'success'
+            ]);
+        }
+        return response()->json([
+            'status'=>'error'
+        ]);
     }
 
     /**
@@ -94,8 +107,14 @@ class CategoryController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
         //
+        if(empty($request->ids)){
+            return response()->json(['status' => 'error', 'info' => 'ID不能为空']);
+        }
+        $result = Category::whereIn('id',$request->ids)->delete();
+        return response()->json(['status' => !$result ? 'error' : 'success']);
     }
+
 }

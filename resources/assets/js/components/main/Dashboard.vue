@@ -76,7 +76,9 @@
             }
         },
         mounted() {
-            var user = sessionStorage.getItem('mySession');
+            this.currentPath = this.$route.path;
+            this.currentPathName = this.$route.name;
+            let user = sessionStorage.getItem('mySession');
             if (user) {
                 user = JSON.parse(user);
                 this.userName = user.name;

@@ -20,8 +20,7 @@ Route::group(['middleware' => 'my'], function () {
     Route::post('/admin/delete/article','Admin\ArticleController@deleteArticle');
 
     // category
-    Route::post('admin/category/post','Admin\CategoryController@store');
-    Route::get('admin/category/get','Admin\CategoryController@index');
+    Route::resource('admin/category', 'Admin\CategoryController');
 });
 
 Route::get('/login/index', 'LoginController@index');

@@ -93440,6 +93440,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     mounted: function mounted() {
+        this.currentPath = this.$route.path;
+        this.currentPathName = this.$route.name;
         var user = sessionStorage.getItem('mySession');
         if (user) {
             user = JSON.parse(user);
@@ -94804,6 +94806,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "category",
@@ -94811,6 +94814,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             categoryData: [],
             categorys: [],
+            checkedAll: [],
             categoryForm: {
                 id: 0,
                 category_name: '',
@@ -94822,7 +94826,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 category_name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }],
                 category_alias: [{ required: true, message: '请选择分类别名', trigger: 'blur' }]
             },
-            categoryFormVisible: false
+            categoryFormVisible: false,
+            categoryFormLoading: false,
+            myFormTitle: '编辑'
         };
     },
 
@@ -94832,32 +94838,105 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
 
         showCreate: function showCreate() {
+            this.myFormTitle = '新增';
             this.categoryFormVisible = true;
             this.setTopCategorys();
+            this.categoryForm = {
+                id: 0,
+                category_name: '',
+                category_alias: '',
+                category_description: '',
+                category_parent: 0
+            };
         },
-        handleEdit: function handleEdit() {
-            alert();
+        handleEdit: function handleEdit(index, row) {
+            var _this = this;
+            _this.myFormTitle = '编辑';
+            _this.setTopCategorys();
+            _this.categoryFormVisible = true;
+            _this.categoryFormLoading = true;
+            _this.axios.get('admin/category/' + row.id).then(function (res) {
+                if (res.data) {
+                    _this.categoryForm = res.data;
+                    _this.categoryFormLoading = false;
+                }
+                console.log(res.data);
+            });
         },
-        handleDestory: function handleDestory() {
-            alert();
+        deleteSelected: function deleteSelected(type, row) {
+            var _this = this,
+                idsParam = {};
+            switch (type) {
+                case 'one':
+                    idsParam = { ids: [row.id] };
+                    break;
+                case 'multi':
+                    var ids = _this.util.getIdByArr(_this.checkedAll);
+                    if (this.checkedAll.length <= 0) {
+                        this.$message({
+                            message: '请选择要删除的数据',
+                            type: 'warning'
+                        });
+                        return false;
+                    }
+                    idsParam = { ids: ids };
+                    break;
+                default:
+                    break;
+            }
+
+            _this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(function () {
+                _this.axios.delete('admin/category/destroy', { data: idsParam }).then(function (res) {
+                    if (res.data.status === 'success') {
+                        _this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        if (type === 'multi') {
+                            for (var index in ids) {
+                                _this.util.removeByValue(_this.categoryData, ids[index]);
+                            }
+                        } else {
+                            _this.util.removeByValue(_this.categoryData, row.id);
+                        }
+                    }
+                });
+            }).catch(function () {});
         },
         categoryFormCreate: function categoryFormCreate(categoryForm) {
             var _this2 = this;
 
             var _this = this;
-
             this.$refs.categoryForm.validate(function (valid) {
                 if (valid) {
-                    _this2.axios.post('admin/category/post', _this2.categoryForm).then(function (res) {
-                        if (res.data.status == 'success') {
-                            _this.closeForm('categoryForm');
-                            _this.getCategoryData();
-                        }
-                        _this.$message({
-                            message: res.data.status == 'success' ? '新增成功' : '新增失败',
-                            type: res.data.status
+                    console.log(_this.categoryForm.id);
+                    if (_this.categoryForm.id > 0) {
+                        _this2.axios.put('admin/category/' + _this.categoryForm.id, _this2.categoryForm).then(function (res) {
+                            if (res.data.status === 'success') {
+                                _this.closeForm('categoryForm');
+                                _this.getCategoryData();
+                            }
+                            _this.$message({
+                                message: res.data.status === 'success' ? '更新成功' : '更新失败',
+                                type: res.data.status
+                            });
                         });
-                    });
+                    } else {
+                        _this2.axios.post('admin/category', _this2.categoryForm).then(function (res) {
+                            if (res.data.status === 'success') {
+                                _this.closeForm('categoryForm');
+                                _this.getCategoryData();
+                            }
+                            _this.$message({
+                                message: res.data.status === 'success' ? '新增成功' : '新增失败',
+                                type: res.data.status
+                            });
+                        });
+                    }
                 } else {
                     return false;
                 }
@@ -94865,7 +94944,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         getCategoryData: function getCategoryData() {
             var _this = this;
-            this.axios.get('/admin/category/get').then(function (res) {
+            this.axios.get('admin/category').then(function (res) {
                 _this.categoryData = res.data;
             });
         },
@@ -94930,7 +95009,7 @@ var render = function() {
                     attrs: { size: "medium", type: "danger" },
                     nativeOn: {
                       click: function($event) {
-                        return _vm.deleteSelected($event)
+                        _vm.deleteSelected("multi", {})
                       }
                     }
                   },
@@ -94994,11 +95073,11 @@ var render = function() {
                         attrs: { type: "text", size: "small" },
                         on: {
                           click: function($event) {
-                            _vm.handleEdit(_vm.row)
+                            _vm.handleEdit(scope.$index, scope.row)
                           }
                         }
                       },
-                      [_vm._v("删除")]
+                      [_vm._v("编辑")]
                     ),
                     _vm._v(" "),
                     _c(
@@ -95007,11 +95086,11 @@ var render = function() {
                         attrs: { type: "text", size: "small" },
                         on: {
                           click: function($event) {
-                            _vm.handleDestory("one", _vm.row)
+                            _vm.deleteSelected("one", scope.row)
                           }
                         }
                       },
-                      [_vm._v("编辑")]
+                      [_vm._v("删除")]
                     )
                   ]
                 }
@@ -95026,7 +95105,7 @@ var render = function() {
         "el-dialog",
         {
           attrs: {
-            title: "添加分类",
+            title: _vm.myFormTitle,
             visible: _vm.categoryFormVisible,
             width: "30%"
           },
@@ -95040,6 +95119,14 @@ var render = function() {
           _c(
             "el-form",
             {
+              directives: [
+                {
+                  name: "loading",
+                  rawName: "v-loading",
+                  value: _vm.categoryFormLoading,
+                  expression: "categoryFormLoading"
+                }
+              ],
               ref: "categoryForm",
               attrs: { model: _vm.categoryForm, rules: _vm.rules }
             },
