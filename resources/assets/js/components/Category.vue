@@ -37,6 +37,19 @@
                 </template>
             </el-table-column>
         </el-table>
+        <div class="block" style="margin-top: 20px">
+            <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    :total="total"
+                    :page-size="pageSize"
+                    :currentPage="currentPage"
+                    :page-sizes="[2, 5]"
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange">
+            </el-pagination>
+        </div>
+
 
         <el-dialog :title="myFormTitle" :visible.sync="categoryFormVisible" width="30%">
             <el-form :model="categoryForm" :rules="rules" ref="categoryForm" v-loading="categoryFormLoading">
@@ -93,11 +106,24 @@
                 categoryFormVisible: false,
                 categoryFormLoading: false,
                 myFormTitle: '编辑',
+                pageSize: 5,
+                total: 0,
+                currentPage: 1
             }
         },
         methods: {
             handleSelectionChange(val) {
                 this.checkedAll = val;
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.pageSize = val;
+                this.getCategoryData();
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+                this.getCategoryData();
             },
             showCreate: function () {
                 this.myFormTitle = '新增';
@@ -208,8 +234,10 @@
             },
             getCategoryData: function () {
                 let _this = this;
-                this.axios.get('admin/category').then(function (res) {
-                    _this.categoryData = res.data;
+                this.axios.get('admin/category',{params:{rows:_this.pageSize,page:_this.currentPage}}).then(function (res) {
+                    _this.categoryData = res.data.data;
+                    _this.total = res.data.total;
+                    _this.currentPage = res.data.current_page;
                 })
             },
             closeForm: function (categoryForm) {

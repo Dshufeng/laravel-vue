@@ -94807,6 +94807,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "category",
@@ -94828,13 +94841,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             },
             categoryFormVisible: false,
             categoryFormLoading: false,
-            myFormTitle: '编辑'
+            myFormTitle: '编辑',
+            pageSize: 5,
+            total: 0,
+            currentPage: 1
         };
     },
 
     methods: {
         handleSelectionChange: function handleSelectionChange(val) {
             this.checkedAll = val;
+        },
+        handleSizeChange: function handleSizeChange(val) {
+            console.log('\u6BCF\u9875 ' + val + ' \u6761');
+            this.pageSize = val;
+            this.getCategoryData();
+        },
+        handleCurrentChange: function handleCurrentChange(val) {
+            this.currentPage = val;
+            console.log('\u5F53\u524D\u9875: ' + val);
+            this.getCategoryData();
         },
 
         showCreate: function showCreate() {
@@ -94944,8 +94970,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         getCategoryData: function getCategoryData() {
             var _this = this;
-            this.axios.get('admin/category').then(function (res) {
-                _this.categoryData = res.data;
+            this.axios.get('admin/category', { params: { rows: _this.pageSize, page: _this.currentPage } }).then(function (res) {
+                _this.categoryData = res.data.data;
+                _this.total = res.data.total;
+                _this.currentPage = res.data.current_page;
             });
         },
         closeForm: function closeForm(categoryForm) {
@@ -95096,6 +95124,28 @@ var render = function() {
                 }
               }
             ])
+          })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "block", staticStyle: { "margin-top": "20px" } },
+        [
+          _c("el-pagination", {
+            attrs: {
+              background: "",
+              layout: "prev, pager, next",
+              total: _vm.total,
+              "page-size": _vm.pageSize,
+              currentPage: _vm.currentPage,
+              "page-sizes": [2, 5]
+            },
+            on: {
+              "size-change": _vm.handleSizeChange,
+              "current-change": _vm.handleCurrentChange
+            }
           })
         ],
         1
